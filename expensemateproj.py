@@ -7,7 +7,6 @@ from PIL import Image, ImageTk
 conn = sqlite3.connect("expense_mate.db")
 cursor = conn.cursor()
 
-# Create tables if they don't exist
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     email TEXT PRIMARY KEY,
@@ -40,9 +39,9 @@ CREATE TABLE IF NOT EXISTS loans (
 );
 """)
 cursor.execute("PRAGMA table_info(loans)")
-columns = [col[1] for col in cursor.fetchall()]  # Get column names
+columns = [col[1] for col in cursor.fetchall()] 
 
-if "status" not in columns:  # If 'status' column doesn't exist, add it
+if "status" not in columns: 
     cursor.execute("""
         ALTER TABLE loans ADD COLUMN status TEXT DEFAULT 'Unpaid';
     """)
@@ -242,12 +241,12 @@ class Dashboard:
         self.bg_label = tk.Label(self.dashboard_root, image=self.bg_photo)
         self.bg_label.place(relwidth=1, relheight=1)
 
-        self.logo1_image = Image.open(r"C:\Users\ASUS\Desktop\ExpenseMate\Screenshot (55).png")  # Replace with your logo image path
-        self.logo1_image = self.logo1_image.resize((340,140))  # Resize the logo image (adjust size as needed)
+        self.logo1_image = Image.open(r"C:\Users\ASUS\Desktop\ExpenseMate\Screenshot (55).png")  
+        self.logo1_image = self.logo1_image.resize((340,140))  
         self.logo1_photo = ImageTk.PhotoImage(self.logo1_image)
 
         # Create a Label with the resized logo image and position it on top
-        self.logo1_label = tk.Label(self.dashboard_root, image=self.logo1_photo, bg="#FFDAB9")  # Background color optional
+        self.logo1_label = tk.Label(self.dashboard_root, image=self.logo1_photo, bg="#FFDAB9")  
         self.logo1_label.place(x=600, y=30) 
 
         # Fetch user name for welcome message
@@ -259,8 +258,8 @@ class Dashboard:
             self.dashboard_root,
             text=welcome_message,
             font=("Arial", 18, "bold"),
-            bg="#FFD166",  # Warm yellow-orange
-            fg="#333333",  # Darker text for contrast
+            bg="#FFD166", 
+            fg="#333333",  
             padx=5,
             pady=5
         ).place(x=50,y=30)
@@ -278,7 +277,7 @@ class Dashboard:
         self.tree.heading("Expenses", text="Expenses")
         self.tree.heading("Amount", text="Amount")
 
-        # Style the table
+        # Styling the table
         style = ttk.Style()
         style.configure("Treeview", font=("Arial", 12), rowheight=25, background="#FFF8E1", fieldbackground="#FFF8E1")
         style.configure("Treeview.Heading", font=("Arial", 13, "bold"), background="#FF9F1C", foreground="black")
@@ -305,13 +304,13 @@ class Dashboard:
         self.loan_tree.column("Date", width=150)
         self.loan_tree.column("Status", width=150)
 
-        # Style the loan table
+        # Styling the loan table
         style.configure("LoanTreeview", font=("Arial", 12), rowheight=25, background="#FFF8E1", fieldbackground="#FFF8E1")
         style.configure("LoanTreeview.Heading", font=("Arial", 13, "bold"), background="#8A2BE2", foreground="black")
         self.loan_tree.place(x=700,y=370)
         
 
-        # Define button styles
+        # Defining button styles
         button_config = {
             "font": ("Arial", 12, "bold"),
             "width": 15,
@@ -319,7 +318,7 @@ class Dashboard:
             "bd": 3
         }
 
-        # Add Buttons with new color scheme
+        # Adding Buttons with new color scheme
         self.add_expense_btn = tk.Button(
             self.dashboard_root,
             text="➕ Add Expense",
@@ -361,13 +360,13 @@ class Dashboard:
         self.mark_paid_btn = tk.Button(
            self.dashboard_root,
            text="✔️ Paid",
-           command=self.open_paid_loan_form,  # Bind to the method that marks a loan as paid
+           command=self.open_paid_loan_form, 
            bg="#06D6A0", fg="white", **button_config
         )
         self.mark_paid_btn.place(x=1290, y=715)
         self.load_expenses()
 
-        # Hover effects for buttons
+        # Hovering effects for buttons
         self.add_expense_btn.bind("<Enter>", lambda e: self.add_expense_btn.config(bg="#FF7F50"))
         self.add_expense_btn.bind("<Leave>", lambda e: self.add_expense_btn.config(bg="#FF9F1C"))
 
@@ -383,7 +382,7 @@ class Dashboard:
         self.loan_btn.bind("<Enter>", lambda e: self.loan_btn.config(bg="#6A1B9A"))
         self.loan_btn.bind("<Leave>", lambda e: self.loan_btn.config(bg="#8A2BE2"))
 
-        self.mark_paid_btn.bind("<Enter>", lambda e: self.mark_paid_btn.config(bg="#2E8B57"))  # Darker green on hover  
+        self.mark_paid_btn.bind("<Enter>", lambda e: self.mark_paid_btn.config(bg="#2E8B57"))    
         self.mark_paid_btn.bind("<Leave>", lambda e: self.mark_paid_btn.config(bg="#3CB371"))
     def open_loan_page(self):
         loan_window = tk.Toplevel(self.dashboard_root)
@@ -419,7 +418,7 @@ class Dashboard:
            return
 
         try:
-            amount = float(amount)  # Ensure amount is a valid number
+            amount = float(amount) 
         except ValueError:
           messagebox.showerror("Error", "Amount must be a valid number!")
           return
@@ -437,7 +436,7 @@ class Dashboard:
       
     def open_paid_loan_form(self):
         """Marks a loan as paid in the Treeview and database."""
-        selected_item = self.loan_tree.selection()  # Get the selected item from the Treeview
+        selected_item = self.loan_tree.selection() 
 
         if not selected_item:
            messagebox.showerror("Error", "Please select a loan to mark as paid.")
@@ -450,18 +449,17 @@ class Dashboard:
         loan_type = selected_loan['values'][2]   # Type of the loan
         loan_date = selected_loan['values'][3]   # Date of the loan
 
-    # Confirm mark as paid
+   
         confirm = messagebox.askyesno("Confirm Paid", f"Are you sure this loan has been paid?\n\n"
                                                   f"Name: {loan_name}\nAmount: {loan_amount}\nType: {loan_type}\nDate: {loan_date}")
         if not confirm:
-            return  # Exit if user doesn't confirm
+            return  
 
-    # Step 3: Update the loan's status in the database
+    
         cursor.execute("UPDATE loans SET status = ? WHERE email = ? AND name = ? AND amount = ? AND type = ? AND date = ?",
                    ("Paid", self.email, loan_name, loan_amount, loan_type, loan_date))
         conn.commit()
 
-    # Step 4: Update the Treeview to show the loan as paid
         self.loan_tree.item(selected_item, values=(loan_name, loan_amount, loan_type, loan_date, "Paid"))
 
         messagebox.showinfo("Success", "Loan marked as paid successfully!")
@@ -498,7 +496,7 @@ class Dashboard:
             return
 
        try:
-            amount = float(amount)  # Ensure amount is a valid number
+            amount = float(amount) 
        except ValueError:
             messagebox.showerror("Error", "Amount must be a valid number!")
             return
@@ -529,7 +527,7 @@ class Dashboard:
             messagebox.showinfo("Report", report)
 
     def open_delete_expense_form(self):
-        selected_item = self.tree.selection()  # Get selected item
+        selected_item = self.tree.selection() 
 
         if not selected_item:
             messagebox.showerror("Error", "Please select an expense to delete!")
@@ -541,7 +539,7 @@ class Dashboard:
             messagebox.showerror("Error", "No valid expense selected!")
             return
 
-        date, expense, amount = item_values  # Extract details
+        date, expense, amount = item_values
 
         # Confirm deletion
         confirm = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete '{expense}'?")
